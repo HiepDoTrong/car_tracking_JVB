@@ -13,27 +13,12 @@ from functions import *
 import pandas as pd
 import slots as sl
 
-def draw_line(event, x, y, flags, param):
-    global line_start, line_end, drawing, line_drawn
-
-    if event == cv2.EVENT_LBUTTONDOWN:
-        drawing = True
-        line_start = (x, y)
-    elif event == cv2.EVENT_MOUSEMOVE:
-        if drawing:
-            line_end = (x, y)
-    elif event == cv2.EVENT_LBUTTONUP:
-        drawing = False
-        line_end = (x, y)
-        line_drawn = True
-
 ap = argparse.ArgumentParser()
 ap.add_argument("-c", "--confidence")
 args = vars(ap.parse_args())
 screen_width, screen_height = 1280, 640
 
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('demo/G2_conf02.mp4', fourcc, 30.0, (screen_width, screen_height))
 
 cars = Car()
 persons = Person()
@@ -53,8 +38,17 @@ print("[INFO] starting video stream...")
 # vs = VideoStream(src=0).start()
 # time.sleep(2.0)
 # VIDEO
-vs = cv2.VideoCapture('/home/dotronghiep/Documents/JVBCompany/car_tracking_JVB/short_video/camG/camG2.mp4')
-df = pd.read_csv('/home/dotronghiep/Documents/JVBCompany/car_tracking_JVB/centroid_coordinates/cam1.csv')
+
+# polygon of cam D
+polygon = np.array([[820, 100], [1280, 370], [1225, 640], [0, 610], [0, 210], [220, 105]], np.int32)
+# polygon of cam G small
+# polygon = np.array([[50, 440],[345, 85],[800, 85], [1280, 440], [1280, 780], [0, 640]], np.int32)
+# polygon of cam G large
+# polygon = np.array([[0, 210],[190, 88],[950, 88], [1280, 330], [1280, 780], [0, 640]], np.int32)
+
+out = cv2.VideoWriter('./demo_video/no_conditions/D1_track.mp4', fourcc, 30.0, (screen_width, screen_height))
+vs = cv2.VideoCapture('./short_video/camD/camD1.mp4')
+df = pd.read_csv('./centroid_coordinates/cam1.csv')
 df = df.drop(columns=[df.columns[0], df.columns[-1]])
 columns = np.array(df.columns)
 values = df.values.squeeze()
@@ -83,13 +77,6 @@ for column, value in zip(columns, values):
 # drawing = False
 # line_drawn = False
 # line_thickness = 2
-
-# polygon = np.array([[820, 95], [1280, 370], [1225, 640], [0, 610], [80, 340]], np.int32)
-# polygon of cam D
-# polygon = np.array([[820, 100], [1280, 370], [1225, 640], [0, 610], [0, 210], [220, 105]], np.int32)
-# polygon of cam G
-polygon = np.array([[50, 440],[345, 85],[800, 85], [1280, 440], [1280, 780], [0, 640]], np.int32)
-
 
 # Hiển thị frame đầu tiên của video và chờ người dùng vẽ đường
 # while not line_drawn:
@@ -142,7 +129,8 @@ while True:
                 if confidence > car_confidence:
                     rect = np.array(box.xyxy.cpu(), dtype=int).squeeze()
                     cars_in_frame.append(rect)
-        cars_in_frame = non_max_suppression(cars_in_frame, overlapThresh=0.85)
+        if len(cars_in_frame) > 0:
+            cars_in_frame = non_max_suppression(cars_in_frame, overlapThresh=0.85)
         # print(len(cars_in_frame), len(persons_in_frame))
         car_objects, overlines, car_disappeared = cars.update(cars_in_frame)
         # person_objects, person_disappeared = persons.update(persons_in_frame, car_objects, overlines)
@@ -152,8 +140,8 @@ while True:
         # to detect the car which cross the line
         # if overline==1:
         centroid, rect = centroid_rect
-        # if centroid_in_polygon(centroid, polygon) and car_dis == 0:
-        if car_dis == 0:
+        if centroid_in_polygon(centroid, polygon) and car_dis == 0:
+        # if car_dis == 0:
             (startX, startY, endX, endY) = rect
             cv2.rectangle(frame, (startX, startY), (endX, endY), (0, 0, 255), 1)
             text = "{}".format(objectID) 

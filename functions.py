@@ -84,3 +84,4 @@ def non_max_suppression(cars_in_frame, overlapThresh):
             np.where(overlap > overlapThresh)[0])))
         # Trả ra list các index được lựa chọn
     return [cars_in_frame[i] for i in pick]
+
