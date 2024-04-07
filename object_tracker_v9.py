@@ -61,6 +61,12 @@ for column, value in zip(columns, values):
         name = column[-2:]
         slot = sl.Slot(name, x, y)
         slots.append(slot)
+
+slot_centroids = []
+for slot in slots:
+    slot_ID = slot.id
+    slot_centroids.append([slot.x, slot.y])
+slot_centroids = np.array(slot_centroids)
 # vs = cv2.VideoCapture('/home/dotronghiep/Documents/Datasets/Car_tracking/Data_demo_09012024/test_4.mp4')
 
 # # Đọc frame đầu tiên từ video
@@ -98,7 +104,11 @@ while True:
     rest += 1
     ret, frame = vs.read()
     frame = cv2.resize(frame, (1280, 640))
+    for slot in slots:
+        cv2.circle(frame, (slot.x, slot.y), 4, (255, 0, 0), -1)
     if rest % 5 == 0:
+        # draw slot centroids
+        
         # start inference time
         # inference_st = time.time() 
         # Convert numpy array to PyTorch tensor and change dimensions
