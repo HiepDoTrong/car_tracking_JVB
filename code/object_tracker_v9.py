@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("/home/dotronghiep/Documents/JVBCompany/car_tracking_JVB")
 from pyimagesearch.centroidtracker import CentroidTracker, Person, Car
 from imutils.video import VideoStream
 import numpy as np
@@ -25,7 +28,7 @@ persons = Person()
 (H, W) = (None, None)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = YOLO('yolov9c.pt')
+model = YOLO('/home/dotronghiep/Documents/JVBCompany/car_tracking_JVB/pretrained_yolo/yolov9c.pt')
 model.to(device)  # pretrained YOLOv8n model
 
 matplotlib.use('Agg')
@@ -40,15 +43,15 @@ print("[INFO] starting video stream...")
 # VIDEO
 
 # polygon of cam D
-# polygon = np.array([[820, 100], [1280, 370], [1225, 640], [0, 610], [0, 210], [220, 105]], np.int32)
+polygon = np.array([[820, 100], [1280, 370], [1225, 640], [0, 610], [0, 210], [220, 105]], np.int32)
 # polygon of cam G small
-# polygon = np.array([[50, 440],[345, 85],[800, 85], [1280, 440], [1280, 780], [0, 640]], np.int32)
+polygon = np.array([[50, 440],[345, 85],[800, 85], [1280, 440], [1280, 780], [0, 640]], np.int32)
 # polygon of cam G large
 polygon = np.array([[0, 210],[190, 88],[950, 88], [1280, 330], [1280, 780], [0, 640]], np.int32)
 # output video
-out = cv2.VideoWriter('./demo_video/no_conditions/G1_track.mp4', fourcc, 30.0, (screen_width, screen_height))
+out = cv2.VideoWriter('./video_demo/weather_conditions_camG/G1_track_sunset.mp4', fourcc, 30.0, (screen_width, screen_height))
 # input video
-vs = cv2.VideoCapture('./short_video/camG/camG1.mp4')
+vs = cv2.VideoCapture('./video_aumented/camG/G1_sunset.mp4')
 # centroid coordinates
 df = pd.read_csv('./centroid_coordinates/cam1.csv')
 df = df.drop(columns=[df.columns[0], df.columns[-1]])
