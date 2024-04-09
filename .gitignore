@@ -1,4 +1,4 @@
 *.pt
-*_video
+video*
 *.mp4
 demo
